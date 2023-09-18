@@ -73,8 +73,15 @@ fn find_matching_hash(message: &str, prefix_length: u32) -> Option<String> {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    if args.len() != 3 {
+        eprintln!("Usage: {} <message> <prefix_length>", &args[0]);
+        std::process::exit(1);
+    }
+    
     let s = &args[1];
-    let prefix_length = args[2].parse::<u32>().expect("Invalid prefix length.");
+    let prefix_length = args[2]
+        .parse::<u32>()
+        .expect("Invalid prefix length.");
 
     match find_matching_hash(s, prefix_length) {
         Some(matching_message) => println!("Matching message: {}", matching_message),
