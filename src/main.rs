@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc;
 use std::sync::Arc;
-use std::{env, sync::mpsc};
 use std::{thread, time};
 
 use sha2::{Digest, Sha256};
@@ -37,7 +37,7 @@ fn find_matching_hash(message: &str, prefix_length: u32) -> Option<String> {
                 (thread_id + 1) * (target / num_threads)
             };
 
-            let message_part = format!("{} ", message).into_bytes();
+            let message_part = format!("{}", message).into_bytes();
             let message_len = message_part.len();
             let mut buffer = message_part.clone();
             buffer.resize(message_len + prefix_length, b'0');
@@ -93,16 +93,25 @@ fn find_matching_hash(message: &str, prefix_length: u32) -> Option<String> {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        eprintln!("Usage: {} <message> <prefix_length>", &args[0]);
-        std::process::exit(1);
-    }
+    println!("Enter the message:");
+    let mut s = String::new();
+    std::io::stdin()
+        .read_line(&mut s)
+        .expect("Failed to read message");
+    s = s.trim().to_string();
 
-    let s = &args[1];
-    let prefix_length = args[2].parse::<u32>().expect("Invalid prefix length.");
+    println!("Enter the prefix length:");
+    let mut prefix_input = String::new();
+    std::io::stdin()
+        .read_line(&mut prefix_input)
+        .expect("Failed to read prefix length");
+    let prefix_length = prefix_input
+        .trim()
+        .parse::<u32>()
+        .expect("Invalid prefix length");
+
     let start = time::Instant::now();
-    match find_matching_hash(s, prefix_length) {
+    match find_matching_hash(&s, prefix_length) {
         Some(matching_message) => println!("Matching message: {}", matching_message),
         None => println!("No matching message found."),
     }
